@@ -12,6 +12,6 @@ class Users(BaseModel):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     vk_id = Column(String, unique=True, index=True)
     vk_json = Column(JSONB, nullable=True)
-
+    stores = relationship("Store", back_populates="user")
     created_at = Column(DateTime, server_default=func.now()) 
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())  
