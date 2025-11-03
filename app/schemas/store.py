@@ -31,7 +31,7 @@ class StoreRead(StoreBase):
 class StoreListItem(BaseModel):
     store_id: UUID
     title: Optional[str] = None
-    cross_country_ability: Optional[float] = None
     adress: Optional[str] = None
+    cross_country_ability: Optional[float] = None
     latitude: float
     longitude: float
