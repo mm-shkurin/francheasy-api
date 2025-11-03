@@ -14,8 +14,6 @@ class Store(Base):
     cross_country_ability = Column(Float, nullable=False)
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
-    phones = Column(ARRAY(String(20)), default=[])
-    description = Column(Text,nullable=False)
     adress = Column(String,nullable=True)
     user = relationship("Users", back_populates="stores")
     created_at = Column(DateTime, server_default=func.now()) 
