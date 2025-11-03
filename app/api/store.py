@@ -5,7 +5,8 @@ from typing import List
 from app.db.database import get_db
 from app.models.users import Users
 from app.services.store_service import StoreService
-from app.schemas.store import StoreCreate, StoreRead, StoreUpdate,StoreListItem
+from app.services.povilions_service import PovilionsService
+from app.schemas.store import StoreCreate, StoreRead, StoreUpdate, StoreListItem, PovilionListItem
 from app.utils.security import get_current_user
 
 store_router = APIRouter()
@@ -52,15 +53,28 @@ async def get_store(
     store = await service.get_store_by_id(store_id)
     if not store:
         raise HTTPException(status_code=404, detail="Store not found")
+    povilions_service = PovilionsService(db)
+    povilions_list = await povilions_service.get_povilions_by_store(store_id)
+    
+    povilions = []
+    for p in povilions_list:
+        povilions.append(
+            PovilionListItem(
+                povilion_id=p.povilion_id,
+                title=p.title,
+                price=p.price
+            )
+        )
     
     return StoreRead(
         store_id=store.store_id,
         user_id=store.user_id,
         title=store.title,
-        adress = store.adress,
+        adress=store.adress,
         cross_country_ability=store.cross_country_ability,
         latitude=store.latitude,
         longitude=store.longitude,
+        povilions=povilions,
         created_at=store.created_at,
         updated_at=store.updated_at
     )
