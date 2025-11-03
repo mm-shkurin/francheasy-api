@@ -14,6 +14,8 @@ class Users(BaseModel):
     vk_json = Column(JSONB, nullable=True)
     stores = relationship("Store", back_populates="user")
     povilions = relationship("Povilions", back_populates="user")
+    businesses = relationship("Business", back_populates="user")
+    business_requests = relationship("BusinessRequest", back_populates="user")
     
     created_at = Column(DateTime, server_default=func.now()) 
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())  

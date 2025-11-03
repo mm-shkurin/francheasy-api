@@ -3,6 +3,12 @@ from typing import List, Optional
 from uuid import UUID
 from datetime import datetime
 
+
+class PovilionListItem(BaseModel):
+    povilion_id: UUID
+    title: str
+    price: float
+
 class StoreBase(BaseModel):
     title: str
     latitude: float = Field(..., ge=-90, le=90)
@@ -25,6 +31,7 @@ class StoreUpdate(BaseModel):
 class StoreRead(StoreBase):
     store_id: UUID
     user_id: UUID
+    povilions: Optional[List[PovilionListItem]] = []
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 

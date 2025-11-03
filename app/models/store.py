@@ -18,6 +18,7 @@ class Store(Base):
     
     user = relationship("Users", back_populates="stores")
     povilions = relationship("Povilions", back_populates="store")
+    businesses = relationship("Business", back_populates="store")
 
     created_at = Column(DateTime, server_default=func.now()) 
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
