@@ -10,12 +10,12 @@ class FrancheasyService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def create_sale_car(
+    async def create_francheasy(
         self,
         user_id: str,
         payload: FrancheasyCreate,
     ) -> Francheasy:
-        sale_car = SaleCars(
+        francheasy = Francheasy(
             id=uuid.uuid4(),
             user_id=uuid.UUID(user_id),
             title=payload.title,
@@ -50,7 +50,7 @@ class FrancheasyService:
 
     async def add_francheasy_photos(self, francheasy_id: str, photos_b64: List[str]) -> Francheasy:
         francheasy = await self.get_francheasy_by_id(francheasy_id)
-        if not sale_car:
+        if not francheasy:
             raise ValueError("Francheasy not found")
         existing = francheasy.s3_photo_francheasy_keys or []
         francheasy.s3_photo_francheasy_keys = existing + list(photos_b64)
@@ -76,37 +76,12 @@ class FrancheasyService:
         await self.db.commit()
         await self.db.refresh(francheasy)
         
-        if francheasy.chroma_document_id:
-            try:
-                from app.services.chromadb_service import ChromaService
-                chroma = ChromaService()
-                
-                current_data = await chroma.get_document(francheasy.chroma_document_id)
-                if current_data and isinstance(current_data, dict):
-                    updated_data = current_data.copy()
-                    for key, value in update_data.items():
-                        if value is not None and key != "vin":  
-                            updated_data[key] = value
-                    
-                    await chroma.update_document(francheasy.chroma_document_id, updated_data)
-            except Exception as e:
-                print(f"Error updating ChromaDB for francheasy {francheasy_id}: {e}")
-        
         return francheasy
 
     async def delete_francheasy(self, francheasy_id: str) -> bool:
         francheasy = await self.get_francheasy_by_id(francheasy_id)
         if not francheasy:
             raise ValueError("Francheasy not found")
-
-        if francheasy.chroma_document_id:
-            try:
-                from app.services.chromadb_service import ChromaService
-
-                chroma = ChromaService()
-                await chroma.delete_document(francheasy.chroma_document_id)
-            except Exception:
-                pass
 
         await self.db.execute(
             delete(Francheasy).where(Francheasy.id == uuid.UUID(francheasy_id))

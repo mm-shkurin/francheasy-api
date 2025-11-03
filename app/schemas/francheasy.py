@@ -25,7 +25,6 @@ class FrancheasyUpdate(BaseModel):
 class FrancheasyUpdateResponse(BaseModel):
     id: UUID
     user_id: UUID
-    chroma_document_id: Optional[str]
     updated_at: datetime
     message: str = "Francheasy updated successfully"
 
@@ -36,8 +35,12 @@ class FrancheasyUpdateResponse(BaseModel):
 class FrancheasyResponse(BaseModel):
     id: UUID
     user_id: UUID
-    chroma_document_id: Optional[str]
+    title: Optional[str] = None
+    open_store: Optional[float] = None
+    start_capital: Optional[float] = None
     s3_photo_francheasy_keys: Optional[List[str]] = None
+    photo_urls: Optional[List[str]] = None
+    preview_photo_url: Optional[str] = None
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
 

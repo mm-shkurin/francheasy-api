@@ -59,15 +59,18 @@ class S3Service:
     
     async def upload_file(self, car_id: str, file: UploadFile, folder: str = "photos") -> str:
         key = self._generate_key(car_id, file.filename, folder)
-
+        
+        file_content = await file.read()
+        
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(
             None,
-            lambda: self.s3_client.upload_fileobj(
-                file.file,
-                self.bucket,
-                key,
-                ExtraArgs={"ACL": "public-read", "ContentType": file.content_type},
+            lambda: self.s3_client.put_object(
+                Bucket=self.bucket,
+                Key=key,
+                Body=file_content,
+                ACL="public-read",
+                ContentType=file.content_type,
             ),
         )
 
@@ -82,14 +85,18 @@ class S3Service:
 
     async def upload_file_get_key(self, car_id: str, file: UploadFile, folder: str = "photos") -> str:
         key = self._generate_key(car_id, file.filename, folder)
+        
+        file_content = await file.read()
+        
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(
             None,
-            lambda: self.s3_client.upload_fileobj(
-                file.file,
-                self.bucket,
-                key,
-                ExtraArgs={"ACL": "public-read", "ContentType": file.content_type},
+            lambda: self.s3_client.put_object(
+                Bucket=self.bucket,
+                Key=key,
+                Body=file_content,
+                ACL="public-read",
+                ContentType=file.content_type,
             ),
         )
         return key
@@ -146,18 +153,6 @@ class S3Service:
         except self.s3_client.exceptions.NoSuchKey:
             raise FileNotFoundError(f"File with key {key} not found")
     async def generate_presigned_url(self, key: str, expires_in: int = 3600) -> str:
-        loop = asyncio.get_event_loop()
-        url = await loop.run_in_executor(
-            None,
-            lambda: self.s3_client.generate_presigned_url(
-                'get_object',
-                Params={'Bucket': self.bucket, 'Key': key},
-                ExpiresIn=expires_in
-            )
-        )
-        if url.startswith('http://'):
-            url = url.replace('http://', 'https://')
-        url = url.replace(':9000', '')
-        return url
+        return f"https://absoluteomsk.ru/auto/{self.bucket}/{key}"
 
 s3_service = S3Service()

@@ -10,7 +10,6 @@ class Francheasy(Base):
     title = Column(String)
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    chroma_document_id = Column(String, nullable=True)
     ebitda = Column(Float,nullable=False)
     start_capital = Column(Float,nullable=False)
     open_store = Column(Float,nullable=False)
