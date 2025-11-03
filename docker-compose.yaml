@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   app:
     container_name: francheasy_app
@@ -99,27 +97,6 @@ services:
         redis-server /usr/local/etc/redis/redis.conf
       '
 
-  celery_worker:
-    container_name: francheasy_celery
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: always
-    depends_on:
-      redis:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      app:
-        condition: service_healthy
-    networks:
-      - francheasy_network
-    volumes:
-      - .:/app
-    env_file:
-      - .env
-    command: celery -A app.celery_worker.celery_app worker --loglevel=INFO
-
   nginx:
     image: nginx:alpine
     container_name: francheasy_nginx
@@ -147,7 +124,7 @@ services:
       sh -c "sleep 10 &&
       certbot certonly --webroot --webroot-path=/var/www/certbot
       --email trape3977@gmail.com --agree-tos --no-eff-email --non-interactive
-      -d absoluteomsk.ru -d www.absoluteomsk.ru &&
+      -d absoluteomsk.ru &&
       echo '✅ Certificate obtained successfully!'"
     networks:
       - francheasy_network

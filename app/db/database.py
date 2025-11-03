@@ -39,7 +39,6 @@ def get_db_session():
     """Используется в Celery-задачах"""
     return get_async_sessionmaker()()
 
-# Для FastAPI (если используется)
 async def get_db() -> AsyncSession:
     async with get_async_sessionmaker()() as session:
         yield session
