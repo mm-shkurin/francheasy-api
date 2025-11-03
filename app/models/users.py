@@ -13,5 +13,7 @@ class Users(BaseModel):
     vk_id = Column(String, unique=True, index=True)
     vk_json = Column(JSONB, nullable=True)
     stores = relationship("Store", back_populates="user")
+    povilions = relationship("Povilions", back_populates="user")
+    
     created_at = Column(DateTime, server_default=func.now()) 
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())  
