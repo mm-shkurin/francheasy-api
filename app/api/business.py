@@ -128,15 +128,14 @@ async def get_business_details(
     
     return {
         "business_id": business.business_id,
-        "francheasy_id": business.francheasy_id,
         "francheasy_title": francheasy_title,
         "francheasy_photo_url": francheasy_photo_url,
         "store_address": store_address,
         "povilion_title": povilion_title,
-        "transactions": transactions,
         "total_expense": totals["total_expense"],
         "total_income": totals["total_income"],
         "profit_percentage": totals["profit_percentage"],
+        "transactions": transactions,
         "created_at": business.created_at,
         "updated_at": business.updated_at
     }
