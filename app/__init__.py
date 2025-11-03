@@ -1,5 +1,4 @@
-# Импорт моделей для инициализации SQLAlchemy relationships
-from app.models import users, francheasy, store, povilions
+from app.models import users, francheasy, store, povilions, business
 
 from .api import api_router
 from .main import app

@@ -15,6 +15,8 @@ class Francheasy(Base):
     open_store = Column(Float,nullable=False)
     phone_number = Column(String,nullable=False)
     s3_photo_francheasy_keys = Column(JSON, default=[])
+    
+    businesses = relationship("Business", back_populates="francheasy")
 
     created_at = Column(DateTime, server_default=func.now()) 
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

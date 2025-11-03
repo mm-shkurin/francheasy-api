@@ -10,6 +10,7 @@ from app.models.users import Users
 from app.models.francheasy import Francheasy
 from app.models.store import Store
 from app.models.povilions import Povilions
+from app.models.business import Business
 from app.core.config import DatabaseSettings
 
 from alembic import context
