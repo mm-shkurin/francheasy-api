@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 400px; margin: 100px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="password"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h2> Доступ к документации API</h2>
+    <form method="post" action="{{ action }}">
+        <div class="form-group">
+            <label for="api_key">API Key:</label>
+            <input type="password" id="api_key" name="api_key" required>
+        </div>
+        <button type="submit">Войти</button>
+    </form>
+</body>
+</html> 

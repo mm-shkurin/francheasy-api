@@ -1,10 +1,8 @@
 import os
 import sys
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from app.core.config import AppSettings
-from app.core.config import CORSSettings
 from loguru import logger
 from app.api.auth import auth_router
 from app.api.docs import docs_router
@@ -47,20 +45,6 @@ def create_app():
         openapi_url=None  
     )
     setup_logging()
-    # CORS
-    try:
-        cors_settings = CORSSettings()
-        origins = [o.strip() for o in cors_settings.cors_origins.split(",") if o.strip()]
-        if origins:
-            app.add_middleware(
-                CORSMiddleware,
-                allow_origins=origins,
-                allow_credentials=True,
-                allow_methods=["*"],
-                allow_headers=["*"],
-            )
-    except Exception:
-        pass
     
     @app.get("/")
     def read_root():
