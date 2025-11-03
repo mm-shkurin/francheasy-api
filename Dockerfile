@@ -29,12 +29,6 @@ RUN chmod +x entrypoint.sh
 
 ENV PYTHONPATH=/app
 
-RUN mkdir -p /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2
-COPY ./onnx_model/ /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2/
-
-RUN cd /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2/ && \
-    tar -czf onnx.tar.gz config.json model.onnx special_tokens_map.json tokenizer.json tokenizer_config.json vocab.txt
-
 ENV CHROMA_SERVER_NOFILE=1
 ENV CHROMA_DISABLE_TELEMETRY=1
 ENV CHROMA_DISABLE_IMPORT=1
