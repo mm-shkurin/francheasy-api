@@ -40,7 +40,7 @@ def create_app():
     settings = get_app_settings() 
     app = FastAPI(
         title=settings.app_name,
-        description="API for Absolute application",
+        description="API for Francheasy application",
         version="1.0.0",
         docs_url=None,  
         redoc_url=None,
@@ -64,7 +64,7 @@ def create_app():
     
     @app.get("/")
     def read_root():
-        return {"message": "Welcome to API Absolute"}
+        return {"message": "Welcome to API Francheasy"}
     @app.get("/health")
     async def health_check():
         return {"status": "ok"}

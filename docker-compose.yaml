@@ -1,0 +1,161 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: francheasy_app
+    build: .
+    restart: always
+    expose:
+      - ${APP_PORT}
+    networks:
+      - francheasy_network
+    volumes:
+      - .:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port ${APP_PORT}
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:${APP_PORT}/health', timeout=5)"]
+      interval: 80m
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  chroma:
+    container_name: francheasy_chroma
+    image: chromadb/chroma:latest
+    restart: always
+    ports:
+      - '8001:8001'
+    expose:
+      - ${CHROMA_PORT}
+    environment:
+      - CHROMA_PORT=8001
+    networks:
+      - francheasy_network
+    healthcheck:
+      test: ["CMD", "sh", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/${CHROMA_PORT}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  minio:
+    container_name: francheasy_minio
+    image: minio/minio:latest
+    restart: always
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - MINIO_DEFAULT_BUCKETS=${MINIO_DEFAULT_BUCKETS}
+    networks:
+      - francheasy_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    command: server --console-address ":9001" /data
+
+  postgres:
+    container_name: francheasy_postgres
+    image: postgres:17-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    expose:
+      - ${POSTGRES_PORT}
+    networks:
+      - francheasy_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  redis:
+    container_name: francheasy_redis
+    image: redis:latest
+    restart: always
+    expose:
+      - ${REDIS_PORT}
+    networks:
+      - francheasy_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    command: |
+      sh -c '
+        mkdir -p /usr/local/etc/redis &&
+        echo "bind 0.0.0.0" > /usr/local/etc/redis/redis.conf &&
+        echo "appendonly yes" >> /usr/local/etc/redis/redis.conf &&
+        echo "appendfsync everysec" >> /usr/local/etc/redis/redis.conf &&
+        redis-server /usr/local/etc/redis/redis.conf
+      '
+
+  celery_worker:
+    container_name: francheasy_celery
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      app:
+        condition: service_healthy
+    networks:
+      - francheasy_network
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    command: celery -A app.celery_worker.celery_app worker --loglevel=INFO
+
+  nginx:
+    image: nginx:alpine
+    container_name: francheasy_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    depends_on:
+      - app
+    networks:
+      - francheasy_network
+
+  certbot:
+    image: certbot/certbot
+    container_name: francheasy_certbot
+    volumes:
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    depends_on:
+      - nginx
+    entrypoint: >
+      sh -c "sleep 10 &&
+      certbot certonly --webroot --webroot-path=/var/www/certbot
+      --email trape3977@gmail.com --agree-tos --no-eff-email --non-interactive
+      -d absoluteomsk.ru -d www.absoluteomsk.ru &&
+      echo '✅ Certificate obtained successfully!'"
+    networks:
+      - francheasy_network
+
+networks:
+  francheasy_network:
+    driver: bridge
+
+volumes:
+  certbot-conf:
+  certbot-www:
